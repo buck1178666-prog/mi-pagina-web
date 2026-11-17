@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Renta de Libros - Biblioteca COBACH Huixtla</title>
+  <style>
+    :root {
+      --azul-cobach: #0b2e59;
+      --azul-claro: #164b8a;
+      --verde-acento: #0d7a5f;
+      --dorado: #d99b26;
+      --fondo: #f3f5f9;
+      --blanco: #ffffff;
+      --texto: #1e293b;
+      --texto-suave: #64748b;
+      --borde: #e2e8f0;
+      --rojo: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--fondo);
+      color: var(--texto);
+      line-height: 1.5;
+    }
+
+    /* Encabezado Institucional */
+    header {
+      background: linear-gradient(135deg, var(--azul-cobach), var(--azul-claro));
+      color: var(--blanco);
+      padding: 1.5rem 2rem;
+      border-bottom: 4px solid var(--dorado);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .badge-institucional {
+      background-color: rgba(255, 255, 255, 0.15);
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Contenedor Principal */
+    .container {
+      max-width: 1200px;
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+    }
+
+    /* Tarjetas de Resumen (Variables Globales) */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+      background: var(--blanco);
+      padding: 1.2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      border-left: 5px solid var(--azul-cobach);
+    }
+
+    .kpi-card.verde { border-left-color: var(--verde-acento); }
+    .kpi-card.dorado { border-left-color: var(--dorado); }
+    .kpi-card.azul { border-left-color: var(--azul-claro); }
+
+    .kpi-card span {
+      font-size: 0.85rem;
+      color: var(--texto-suave);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .kpi-card h2 {
+      font-size: 2rem;
+      margin-top: 0.3rem;
+      color: var(--texto);
+    }
+
+    /* Navegación por Módulos */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.2rem;
+    }
+
+    .tab-btn {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--texto);
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      background: #e9eff7;
+    }
+
+    .tab-btn.active {
+      background: var(--azul-cobach);
+      color: var(--blanco);
+      border-color: var(--azul-cobach);
+    }
+
+    /* Secciones / Módulos */
+    .modulo {
+      display: none;
+      background: var(--blanco);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .modulo.active {
+      display: block;
+    }
+
+    .modulo-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .modulo-header h3 {
+      color: var(--azul-cobach);
+      font-size: 1.2rem;
+    }
+
+    /* Controles y Formularios */
+    .filtros {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    input, select {
+      padding: 0.55rem 0.85rem;
+      border: 1px solid var(--borde);
+      border-radius: 6px;
+      font-size: 0.92rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--azul-claro);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      background: #f8fafc;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--borde);
+      margin-bottom: 1.5rem;
+      align-items: end;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--texto);
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+    }
+
+    .btn {
+      padding: 0.6rem 1.1rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--azul-cobach); color: var(--blanco); }
+    .btn-success { background: var(--verde-acento); color: var(--blanco); }
+    .btn-danger { background: var(--rojo); color: var(--blanco); font-size: 0.82rem; padding: 0.4rem 0.75rem; }
+    .btn-sm { font-size: 0.82rem; padding: 0.4rem 0.75rem; }
+
+    /* Tablas */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.85rem 0.75rem;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: var(--azul-cobach);
+      font-weight: 700;
+    }
+
+    tr:hover {
+      background-color: #f8fafc;
+    }
+
+    /* Etiquetas de Categoría y Estado */
+    .tag {
+      display: inline-block;
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .cat-Ciencia { background: #dbeafe; color: #1e40af; }
+    .cat-Matemáticas { background: #fef3c7; color: #92400e; }
+    .cat-Fantasía { background: #f3e8ff; color: #6b21a8; }
+    .cat-Literatura { background: #dcfce7; color: #166534; }
+    .cat-Historia { background: #ffe4e6; color: #9f1239; }
+
+    .ubicacion-badge {
+      background: #e2e8f0;
+      color: #334155;
+      padding: 0.2rem 0.55rem;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .prestado-info {
+      font-size: 0.83rem;
+      color: #b45309;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 0.25rem 0.55rem;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .disponible-ok {
+      color: var(--verde-acento);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .alerta {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .alerta.ok {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--texto-suave);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>📚 Biblioteca Escolar — COBACH HUIXTLA</h1>
+      <p>Punto de Control, Stock, Ubicación y Renta de Libros</p>
+    </div>
+    <div class="badge-institucional">Colegio de Bachilleres de Chiapas</div>
+  </header>
+
+  <main class="container">
+    <!-- Indicadores calculados desde las variables JS -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Ejemplares Totales</span>
+        <h2 id="kpi-total">0</h2>
+      </div>
+      <div class="kpi-card verde">
+        <span>Disponibles en Estante</span>
+        <h2 id="kpi-disponibles">0</h2>
+      </div>
+      <div class="kpi-card dorado">
+        <span>Libros Prestados</span>
+        <h2 id="kpi-prestados">0</h2>
+      </div>
+      <div class="kpi-card azul">
+        <span>Alumnos Registrados</span>
+        <h2 id="kpi-alumnos">0</h2>
+      </div>
+    </section>
+
+    <!-- Botones de Navegación -->
+    <nav class="tabs">
+      <button class="tab-btn active" onclick="cambiarModulo('mod-catalogo', this)">1. Stock, Categorías y Ubicación</button>
+      <button class="tab-btn" onclick="cambiarModulo('mod-prestamos', this)">2. Punto de Renta (Quién tiene el libro)</button>
+      <button class="tab-btn" onclick="cambiarModulo('mod-alumnos', this)">3. Alumnos Registrados</button>
+    </nav>
+
+    <div id="mensaje-sistema" class="alerta"></div>
+
+    <!-- MÓDULO 1: STOCK, CATEGORÍAS Y UBICACIÓN -->
+    <section id="mod-catalogo" class="modulo active">
+      <div class="modulo-header">
+        <h3>Catálogo de Libros, Ubicación Física y Disponibilidad</h3>
+        <div class="filtros">
+          <input type="text" id="buscador-libro" placeholder="Buscar título o autor..." oninput="renderizarCatalogo()" />
+          <select id="filtro-categoria" onchange="renderizarCatalogo()">
+            <option value="Todas">Todas las categorías</option>
+            <option value="Ciencia">Ciencia</option>
+            <option value="Matemáticas">Matemáticas</option>
+            <option value="Fantasía">Fantasía</option>
+            <option value="Literatura">Literatura</option>
+            <option value="Historia">Historia</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Libro y Autor</th>
+              <th>Categoría</th>
+              <th>Ubicación en Biblioteca</th>
+              <th>Stock (Disp. / Total)</th>
+              <th>Estado / Alumno que lo tiene</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-libros"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO 2: PUNTO DE RENTA Y PRÉSTAMOS ACTIVOS -->
+    <section id="mod-prestamos" class="modulo">
+      <div class="modulo-header">
+        <h3>Registrar Nuevo Préstamo de Libro</h3>
+      </div>
+
+      <form class="form-grid" onsubmit="registrarPrestamo(event)">
+        <div class="form-group">
+          <label for="select-alumno">Seleccionar Alumno:</label>
+          <select id="select-alumno" required></select>
+        </div>
+        <div class="form-group">
+          <label for="select-libro">Seleccionar Libro Disponible:</label>
+          <select id="select-libro" required></select>
+        </div>
+        <div class="form-group">
+          <label for="fecha-entrega">Fecha Límite de Entrega:</label>
+          <input type="date" id="fecha-entrega" required />
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary" style="width: 100%;">+ Registrar Renta</button>
+        </div>
+      </form>
+
+      <div class="modulo-header">
+        <h3>Libros Rentados Actualmente (En poder de alumnos)</h3>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Alumno</th>
+              <th>Semestre / Grupo</th>
+              <th>Libro Rentado</th>
+              <th>Ubicación Original</th>
+              <th>Fecha Renta / Entrega</th>
+              <th>Devolución</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-prestamos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO 3: ARREGLO DE ALUMNOS REGISTRADOS -->
+    <section id="mod-alumnos" class="modulo">
+      <div class="modulo-header">
+        <h3>Padrón de Alumnos Registrados — COBACH Huixtla</h3>
+      </div>
+
+      <!-- Formulario opcional para agregar otro alumno al arreglo en vivo -->
+      <form class="form-grid" onsubmit="agregarAlumno(event)">
+        <div class="form-group">
+          <label for="nueva-matricula">Matrícula:</label>
+          <input type="text" id="nueva-matricula" placeholder="Ej. 2026-CB06" required />
+        </div>
+        <div class="form-group">
+          <label for="nuevo-nombre">Nombre Completo del Alumno:</label>
+          <input type="text" id="nuevo-nombre" placeholder="Ej. Luis Ángel Pérez" required />
+        </div>
+        <div class="form-group">
+          <label for="nuevo-semestre">Semestre y Grupo:</label>
+          <input type="text" id="nuevo-semestre" placeholder="Ej. 3° Semestre - Grupo A" required />
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-success" style="width: 100%;">+ Agregar al Arreglo</button>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Matrícula</th>
+              <th>Nombre del Alumno</th>
+              <th>Semestre y Grupo</th>
+              <th>Libros Rentados Actualmente</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-alumnos"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Proyecto Escolar — Sistema de Biblioteca COBACH Plantel Huixtla | Desarrollado con HTML5, CSS3 y JavaScript
+  </footer>
+
+  <script>
+    // =========================================================================
+    // 1. VARIABLES Y ARREGLOS PRINCIPALES (Base de datos en memoria)
+    // =========================================================================
+
+    // Arreglo de libros con categoría, ubicación física y stock
+    let catalogoLibros = [
+      {
+        id: 1,
+        titulo: "Álgebra de Baldor",
+        autor: "Aurelio Baldor",
+        categoria: "Matemáticas",
+        ubicacion: "Pasillo 1 - Estante A2",
+        stockTotal: 4,
+        disponibles: 3
+      },
+      {
+        id: 2,
+        titulo: "Breve historia del tiempo",
+        autor: "Stephen Hawking",
+        categoria: "Ciencia",
+        ubicacion: "Pasillo 2 - Estante B1",
+        stockTotal: 3,
+        disponibles: 2
+      },
+      {
+        id: 3,
+        titulo: "El Señor de los Anillos: La Comunidad del Anillo",
+        autor: "J.R.R. Tolkien",
+        categoria: "Fantasía",
+        ubicacion: "Pasillo 3 - Estante C4",
+        stockTotal: 3,
+        disponibles: 3
+      },
+      {
+        id: 4,
+        titulo: "Cien años de soledad",
+        autor: "Gabriel García Márquez",
+        categoria: "Literatura",
+        ubicacion: "Pasillo 3 - Estante C1",
+        stockTotal: 5,
+        disponibles: 5
+      },
+      {
+        id: 5,
+        titulo: "Física Conceptual",
+        autor: "Paul G. Hewitt",
+        categoria: "Ciencia",
+        ubicacion: "Pasillo 2 - Estante B3",
+        stockTotal: 4,
+        disponibles: 4
+      },
+      {
+        id: 6,
+        titulo: "Harry Potter y la Piedra Filosofal",
+        autor: "J.K. Rowling",
+        categoria: "Fantasía",
+        ubicacion: "Pasillo 3 - Estante C4",
+        stockTotal: 2,
+        disponibles: 2
+      },
+      {
+        id: 7,
+        titulo: "Cálculo Diferencial e Integral",
+        autor: "William A. Granville",
+        categoria: "Matemáticas",
+        ubicacion: "Pasillo 1 - Estante A4",
+        stockTotal: 5,
+        disponibles: 5
+      },
+      {
+        id: 8,
+        titulo: "Historia Mínima de México",
+        autor: "Daniel Cosío Villegas",
+        categoria: "Historia",
+        ubicacion: "Pasillo 4 - Estante D2",
+        stockTotal: 4,
+        disponibles: 4
+      }
+    ];
+
+    // Pequeño arreglo de alumnos registrados en COBACH Huixtla
+    let alumnosRegistrados = [
+      { matricula: "2026-CB01", nombre: "Sofía Martínez López", semestre: "3° Semestre - Grupo A" },
+      { matricula: "2026-CB02", nombre: "Carlos Eduardo Gómez", semestre: "5° Semestre - Grupo B" },
+      { matricula: "2026-CB03", nombre: "Valeria Hernández Cruz", semestre: "1° Semestre - Grupo C" },
+      { matricula: "2026-CB04", nombre: "Diego Alejandro Ruiz", semestre: "3° Semestre - Grupo B" },
+      { matricula: "2026-CB05", nombre: "Fernanda Morales Díaz", semestre: "5° Semestre - Grupo A" }
+    ];
+
+    // Arreglo de préstamos activos (relaciona matricula del alumno con id del libro)
+    let prestamosActivos = [
+      {
+        folio: 101,
+        matriculaAlumno: "2026-CB01",
+        idLibro: 1,
+        fechaRenta: "2026-11-15",
+        fechaEntrega: "2026-11-22"
+      },
+      {
+        folio: 102,
+        matriculaAlumno: "2026-CB02",
+        idLibro: 2,
+        fechaRenta: "2026-11-16",
+        fechaEntrega: "2026-11-23"
+      }
+    ];
+
+    let siguienteFolio = 103;
+
+    // =========================================================================
+    // 2. FUNCIONES DE NAVEGACIÓN Y RENDERIZADO
+    // =========================================================================
+
+    function cambiarModulo(idModulo, boton) {
+      document.querySelectorAll('.modulo').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(idModulo).classList.add('active');
+      boton.classList.add('active');
+    }
+
+    function mostrarMensaje(texto) {
+      const alerta = document.getElementById('mensaje-sistema');
+      alerta.textContent = texto;
+      alerta.className = 'alerta ok';
+      setTimeout(() => {
+        alerta.className = 'alerta';
+      }, 3500);
+    }
+
+    function actualizarKPIs() {
+      let totalEjemplares = 0;
+      let totalDisponibles = 0;
+
+      catalogoLibros.forEach(libro => {
+        totalEjemplares += libro.stockTotal;
+        totalDisponibles += libro.disponibles;
+      });
+
+      document.getElementById('kpi-total').textContent = totalEjemplares;
+      document.getElementById('kpi-disponibles').textContent = totalDisponibles;
+      document.getElementById('kpi-prestados').textContent = prestamosActivos.length;
+      document.getElementById('kpi-alumnos').textContent = alumnosRegistrados.length;
+    }
+
+    // Módulo 1: Renderizar tabla de libros, categorías, ubicación y quién lo tiene
+    function renderizarCatalogo() {
+      const tbody = document.getElementById('tabla-libros');
+      const textoBusqueda = document.getElementById('buscador-libro').value.toLowerCase();
+      const categoriaSeleccionada = document.getElementById('filtro-categoria').value;
+
+      tbody.innerHTML = '';
+
+      const librosFiltrados = catalogoLibros.filter(libro => {
+        const coincideTexto = libro.titulo.toLowerCase().includes(textoBusqueda) ||
+                              libro.autor.toLowerCase().includes(textoBusqueda);
+        const coincideCategoria = categoriaSeleccionada === 'Todas' || libro.categoria === categoriaSeleccionada;
+        return coincideTexto && coincideCategoria;
+      });
+
+      librosFiltrados.forEach(libro => {
+        // Buscar si algún alumno tiene prestado este libro actualmente
+        const prestamosDeEsteLibro = prestamosActivos.filter(p => p.idLibro === libro.id);
+
+        let estadoHTML = `<span class="disponible-ok">✓ Todos en estante</span>`;
+        if (prestamosDeEsteLibro.length > 0) {
+          estadoHTML = prestamosDeEsteLibro.map(p => {
+            const alumno = alumnosRegistrados.find(a => a.matricula === p.matriculaAlumno);
+            const nombreAlumno = alumno ? alumno.nombre : p.matriculaAlumno;
+            return `<div class="prestado-info">📌 Lo tiene: <strong>${nombreAlumno}</strong> (${p.matriculaAlumno})</div>`;
+          }).join('<br>');
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>#${libro.id}</strong></td>
+          <td>
+            <strong>${libro.titulo}</strong><br>
+            <small style="color: var(--texto-suave);">${libro.autor}</small>
+          </td>
+          <td><span class="tag cat-${libro.categoria}">${libro.categoria}</span></td>
+          <td><span class="ubicacion-badge">${libro.ubicacion}</span></td>
+          <td><strong>${libro.disponibles}</strong> / ${libro.stockTotal}</td>
+          <td>${estadoHTML}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" 
+              ${libro.disponibles === 0 ? 'disabled' : ''} 
+              onclick="irAPrestar(${libro.id})">
+              ${libro.disponibles === 0 ? 'Agotado' : 'Rentar'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Atajo desde el catálogo hacia el formulario de renta
+    function irAPrestar(idLibro) {
+      const botones = document.querySelectorAll('.tab-btn');
+      cambiarModulo('mod-prestamos', botones[1]);
+      document.getElementById('select-libro').value = idLibro;
+    }
+
+    // Módulo 2: Llenar selectores y tabla de préstamos
+    function renderizarPrestamos() {
+      const selectAlumno = document.getElementById('select-alumno');
+      const selectLibro = document.getElementById('select-libro');
+      const tbody = document.getElementById('tabla-prestamos');
+
+      // Llenar select de alumnos
+      selectAlumno.innerHTML = '<option value="">-- Elige un alumno --</option>';
+      alumnosRegistrados.forEach(alumno => {
+        selectAlumno.innerHTML += `<option value="${alumno.matricula}">${alumno.matricula} - ${alumno.nombre} (${alumno.semestre})</option>`;
+      });
+
+      // Llenar select de libros con stock disponible > 0
+      selectLibro.innerHTML = '<option value="">-- Elige un libro disponible --</option>';
+      catalogoLibros.forEach(libro => {
+        if (libro.disponibles > 0) {
+          selectLibro.innerHTML += `<option value="${libro.id}">${libro.titulo} (${libro.disponibles} disp. | ${libro.ubicacion})</option>`;
+        }
+      });
+
+      // Renderizar tabla de préstamos activos
+      tbody.innerHTML = '';
+      if (prestamosActivos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--texto-suave);">No hay libros prestados en este momento.</td></tr>`;
+        return;
+      }
+
+      prestamosActivos.forEach(prestamo => {
+        const alumno = alumnosRegistrados.find(a => a.matricula === prestamo.matriculaAlumno);
+        const libro = catalogoLibros.find(l => l.id === prestamo.idLibro);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>#${prestamo.folio}</strong></td>
+          <td><strong>${alumno ? alumno.nombre : 'Desconocido'}</strong><br><small>${prestamo.matriculaAlumno}</small></td>
+          <td>${alumno ? alumno.semestre : '-'}</td>
+          <td><strong>${libro ? libro.titulo : 'Libro eliminado'}</strong></td>
+          <td><span class="ubicacion-badge">${libro ? libro.ubicacion : '-'}</span></td>
+          <td>Renta: ${prestamo.fechaRenta}<br><small style="color:var(--rojo);">Entrega: ${prestamo.fechaEntrega}</small></td>
+          <td>
+            <button class="btn btn-danger" onclick="devolverLibro(${prestamo.folio})">Devolver</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function registrarPrestamo(event) {
+      event.preventDefault();
+      const matricula = document.getElementById('select-alumno').value;
+      const idLibro = parseInt(document.getElementById('select-libro').value);
+      const fechaEntrega = document.getElementById('fecha-entrega').value;
+
+      const libro = catalogoLibros.find(l => l.id === idLibro);
+      if (!libro || libro.disponibles <= 0) return;
+
+      // Restar 1 al stock disponible
+      libro.disponibles -= 1;
+
+      // Obtener fecha actual YYYY-MM-DD
+      const hoy = new Date().toISOString().split('T')[0];
+
+      // Agregar al arreglo de préstamos
+      prestamosActivos.push({
+        folio: siguienteFolio++,
+        matriculaAlumno: matricula,
+        idLibro: idLibro,
+        fechaRenta: hoy,
+        fechaEntrega: fechaEntrega
+      });
+
+      mostrarMensaje(`✅ Libro "${libro.titulo}" rentado correctamente.`);
+      actualizarTodo();
+    }
+
+    function devolverLibro(folio) {
+      const indice = prestamosActivos.findIndex(p => p.folio === folio);
+      if (indice === -1) return;
+
+      const prestamo = prestamosActivos[indice];
+      const libro = catalogoLibros.find(l => l.id === prestamo.idLibro);
+      if (libro) {
+        libro.disponibles += 1; // Regresar ejemplar al stock
+      }
+
+      prestamosActivos.splice(indice, 1);
+      mostrarMensaje(`📘 Devolución registrada. El libro regresó a ${libro ? libro.ubicacion : 'su estante'}.`);
+      actualizarTodo();
+    }
+
+    // Módulo 3: Renderizar arreglo de alumnos registrados
+    function renderizarAlumnos() {
+      const tbody = document.getElementById('tabla-alumnos');
+      tbody.innerHTML = '';
+
+      alumnosRegistrados.forEach(alumno => {
+        const susPrestamos = prestamosActivos.filter(p => p.matriculaAlumno === alumno.matricula);
+        let librosHTML = '<span style="color: var(--texto-suave);">Ninguno</span>';
+
+        if (susPrestamos.length > 0) {
+          librosHTML = susPrestamos.map(p => {
+            const libro = catalogoLibros.find(l => l.id === p.idLibro);
+            return `<span class="prestado-info">📖 ${libro ? libro.titulo : 'Libro #' + p.idLibro}</span>`;
+          }).join(' ');
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${alumno.matricula}</strong></td>
+          <td>${alumno.nombre}</td>
+          <td>${alumno.semestre}</td>
+          <td>${librosHTML}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function agregarAlumno(event) {
+      event.preventDefault();
+      const matricula = document.getElementById('nueva-matricula').value.trim();
+      const nombre = document.getElementById('nuevo-nombre').value.trim();
+      const semestre = document.getElementById('nuevo-semestre').value.trim();
+
+      alumnosRegistrados.push({ matricula, nombre, semestre });
+
+      document.getElementById('nueva-matricula').value = '';
+      document.getElementById('nuevo-nombre').value = '';
+      document.getElementById('nuevo-semestre').value = '';
+
+      mostrarMensaje(`🎓 Alumno ${nombre} registrado en el sistema.`);
+      actualizarTodo();
+    }
+
+    function actualizarTodo() {
+      actualizarKPIs();
+      renderizarCatalogo();
+      renderizarPrestamos();
+      renderizarAlumnos();
+    }
+
+    // Inicializar fecha por defecto (+7 días) y cargar tablas al abrir
+    const fechaDefault = new Date();
+    fechaDefault.setDate(fechaDefault.getDate() + 7);
+    document.getElementById('fecha-entrega').value = fechaDefault.toISOString().split('T')[0];
+
+    actualizarTodo();
+  </script>
+</body>
+</html>
